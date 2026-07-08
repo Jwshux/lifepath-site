@@ -72,7 +72,7 @@
   padding: 0;
   border-radius: 14px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(56, 36, 23, 0.08);
   background-color: var(--color-dusk-soft);
   cursor: pointer;
   text-align: left;
@@ -85,8 +85,8 @@
 .gallery__item:hover,
 .gallery__item:focus-visible {
   transform: translateY(-4px);
-  border-color: rgba(227, 168, 87, 0.4);
-  box-shadow: 0 20px 40px -24px rgba(0, 0, 0, 0.55);
+  border-color: rgba(102, 122, 90, 0.4);
+  box-shadow: 0 20px 40px -24px rgba(56, 36, 23, 0.28);
 }
 
 .gallery__item:focus-visible {
@@ -122,7 +122,7 @@
   z-index: 1;
   font-family: var(--font-display);
   font-size: 2rem;
-  color: rgba(207, 211, 230, 0.35);
+  color: rgba(76, 56, 45, 0.35);
   transition: transform 0.4s var(--ease-standard);
 }
 
@@ -147,7 +147,7 @@
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background-color: rgba(10, 11, 16, 0.85);
+  background-color: rgba(56, 36, 23, 0.55);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   animation: gallery-fade-in 0.25s var(--ease-standard) forwards;
@@ -163,7 +163,7 @@
   padding: 1.5rem;
   border-radius: 18px;
   background-color: var(--color-dusk);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(56, 36, 23, 0.08);
   outline: none;
   animation: gallery-scale-in 0.3s var(--ease-standard) forwards;
 }
@@ -207,7 +207,7 @@
 
 .gallery__dialog-close:hover,
 .gallery__dialog-close:focus-visible {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(56, 36, 23, 0.08);
 }
 
 .gallery__dialog-close:focus-visible,
@@ -229,12 +229,12 @@
   line-height: 1;
   color: var(--color-paper);
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.06);
+  background-color: rgba(56, 36, 23, 0.06);
   transition: background-color 0.25s var(--ease-standard);
 }
 
 .gallery__dialog-nav:hover {
-  background-color: rgba(227, 168, 87, 0.25);
+  background-color: rgba(102, 122, 90, 0.25);
 }
 
 .gallery__dialog-nav--prev {

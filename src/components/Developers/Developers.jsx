@@ -3,7 +3,7 @@ import './Developers.css';
 const DEVELOPERS = [
   {
     id: 1,
-    name: 'Joshua R. R. Riana',
+    name: 'Joshua R. Riana',
     role: 'Role Placeholder',
     description: 'Short description placeholder — bio coming soon.',
   },

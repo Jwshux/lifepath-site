@@ -1,19 +1,18 @@
 /*
   Design tokens for LifePATH.
-  Single source of truth for color, type, and motion so every
-  component (Navbar included) stays visually consistent.
+  Warm, paper-toned palette with a muted sage "ember" accent.
 */
 
 :root {
-  /* Color — dusk/void base with a warm "ember" accent for choice moments */
-  --color-void: #12141c;
-  --color-dusk: #1c2032;
-  --color-dusk-soft: #262b40;
-  --color-mist: #cfd3e6;
-  --color-fog: #8b90a8;
-  --color-paper: #f6f4ef;
-  --color-ember: #e3a857;
-  --color-ember-soft: rgba(227, 168, 87, 0.16);
+  /* Color */
+  --color-void: #F3EEE8;
+  --color-dusk: #E7DDD1;
+  --color-dusk-soft: #FBF8F3;
+  --color-paper: #382417;
+  --color-mist: #4C382D;
+  --color-fog: #776457;
+  --color-ember: #667A5A;
+  --color-ember-soft: rgba(102, 122, 90, 0.14);
 
   /* Type */
   --font-display: 'Fraunces', 'Georgia', serif;
