@@ -9,9 +9,9 @@ This website serves as the official landing page where users can learn about the
 ## Tech Stack
 
 - React.js
-- HTML5
-- CSS3
-- JavaScript (ES6+)
+- HTML
+- CSS
+- JavaScript
 
 ---
 

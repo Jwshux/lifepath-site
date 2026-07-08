@@ -1,0 +1,178 @@
+/* Features
+   Responsive CSS Grid of feature cards, each with an icon placeholder,
+   title, and short description. Cards fade/slide in on load and lift
+   on hover. */
+
+.features {
+  padding: 6rem var(--page-gutter);
+  background-color: var(--color-void);
+}
+
+.features__inner {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.features__header {
+  max-width: 40rem;
+  margin-bottom: 3rem;
+}
+
+.features__eyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-ember);
+}
+
+.features__heading {
+  margin-top: 0.9rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  color: var(--color-paper);
+}
+
+.features__subheading {
+  margin-top: 0.85rem;
+  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+  line-height: 1.6;
+  color: var(--color-fog);
+}
+
+/* Grid */
+
+.features__grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+@media (min-width: 560px) {
+  .features__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .features__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .features__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Card */
+
+.features__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1.75rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background-color: var(--color-dusk);
+  opacity: 0;
+  transform: translateY(16px);
+  animation: features-fade-up 0.6s var(--ease-standard) forwards;
+  transition:
+    transform 0.3s var(--ease-standard),
+    border-color 0.3s var(--ease-standard),
+    background-color 0.3s var(--ease-standard),
+    box-shadow 0.3s var(--ease-standard);
+}
+
+.features__card:hover,
+.features__card:focus-within {
+  transform: translateY(-6px);
+  border-color: rgba(227, 168, 87, 0.4);
+  background-color: var(--color-dusk-soft);
+  box-shadow: 0 20px 40px -24px rgba(0, 0, 0, 0.55);
+}
+
+/* Icon placeholder */
+
+.features__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 1.25rem;
+  border-radius: 12px;
+  background-color: var(--color-ember-soft);
+  transition: background-color 0.3s var(--ease-standard);
+}
+
+.features__card:hover .features__icon,
+.features__card:focus-within .features__icon {
+  background-color: rgba(227, 168, 87, 0.28);
+}
+
+.features__icon-mark {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background-color: var(--color-ember);
+  transition: transform 0.3s var(--ease-standard);
+}
+
+.features__card:hover .features__icon-mark,
+.features__card:focus-within .features__icon-mark {
+  transform: rotate(45deg);
+}
+
+/* Card text */
+
+.features__card-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--color-paper);
+}
+
+.features__card-description {
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--color-fog);
+}
+
+/* Entrance animation */
+
+@keyframes features-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive tweaks */
+
+@media (max-width: 899px) {
+  .features {
+    padding: 4.5rem var(--page-gutter);
+  }
+}
+
+@media (max-width: 480px) {
+  .features {
+    padding: 3.5rem var(--page-gutter);
+  }
+
+  .features__card {
+    padding: 1.5rem;
+  }
+}

@@ -1,0 +1,215 @@
+/* Download
+   Centered intro copy above a single highlighted card containing the
+   APK download CTA, version metadata, and an optional checksum. */
+
+.download {
+  padding: 6rem var(--page-gutter);
+  background-color: var(--color-void);
+}
+
+.download__inner {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.download__intro {
+  text-align: center;
+  max-width: 36rem;
+  margin: 0 auto 3rem;
+}
+
+.download__eyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-ember);
+}
+
+.download__heading {
+  margin-top: 0.9rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  color: var(--color-paper);
+}
+
+.download__description {
+  margin-top: 0.85rem;
+  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+  line-height: 1.6;
+  color: var(--color-fog);
+}
+
+/* Card */
+
+.download__card {
+  position: relative;
+  overflow: hidden;
+  padding: 2.5rem;
+  border-radius: 22px;
+  border: 1px solid rgba(227, 168, 87, 0.25);
+  background-color: var(--color-dusk);
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.55);
+}
+
+.download__card-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 20% -10%, var(--color-ember-soft), transparent 55%);
+  pointer-events: none;
+}
+
+/* CTA */
+
+.download__cta {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-bottom: 2.25rem;
+  margin-bottom: 2.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.download__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 2.25rem;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--color-void);
+  background-color: var(--color-ember);
+  border-radius: 10px;
+  box-shadow: 0 16px 32px -14px rgba(227, 168, 87, 0.55);
+  transition:
+    transform 0.25s var(--ease-standard),
+    box-shadow 0.25s var(--ease-standard),
+    background-color 0.25s var(--ease-standard);
+}
+
+.download__btn:hover,
+.download__btn:focus-visible {
+  transform: translateY(-3px);
+  background-color: #edb96e;
+  box-shadow: 0 22px 40px -16px rgba(227, 168, 87, 0.65);
+}
+
+.download__btn:focus-visible {
+  outline: 2px solid var(--color-paper);
+  outline-offset: 3px;
+}
+
+.download__btn-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.download__cta-note {
+  margin-top: 0.9rem;
+  font-size: 0.8rem;
+  color: var(--color-fog);
+}
+
+/* Metadata grid */
+
+.download__meta {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem 1rem;
+}
+
+@media (min-width: 560px) {
+  .download__meta {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.download__meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-align: center;
+}
+
+.download__meta-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-fog);
+}
+
+.download__meta-value {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--color-paper);
+}
+
+/* Checksum */
+
+.download__checksum {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
+}
+
+.download__checksum-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-fog);
+}
+
+.download__checksum-value {
+  font-family: monospace;
+  font-size: 0.78rem;
+  color: var(--color-mist);
+  word-break: break-all;
+}
+
+/* Responsive tweaks */
+
+@media (max-width: 899px) {
+  .download {
+    padding: 4.5rem var(--page-gutter);
+  }
+
+  .download__card {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .download {
+    padding: 3.5rem var(--page-gutter);
+  }
+
+  .download__card {
+    padding: 1.75rem;
+  }
+
+  .download__btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .download__meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

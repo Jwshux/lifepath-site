@@ -1,0 +1,29 @@
+/*
+  Design tokens for LifePATH.
+  Single source of truth for color, type, and motion so every
+  component (Navbar included) stays visually consistent.
+*/
+
+:root {
+  /* Color — dusk/void base with a warm "ember" accent for choice moments */
+  --color-void: #12141c;
+  --color-dusk: #1c2032;
+  --color-dusk-soft: #262b40;
+  --color-mist: #cfd3e6;
+  --color-fog: #8b90a8;
+  --color-paper: #f6f4ef;
+  --color-ember: #e3a857;
+  --color-ember-soft: rgba(227, 168, 87, 0.16);
+
+  /* Type */
+  --font-display: 'Fraunces', 'Georgia', serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Layout */
+  --navbar-height: 76px;
+  --navbar-height-mobile: 64px;
+  --page-gutter: clamp(1.5rem, 5vw, 4rem);
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+}
