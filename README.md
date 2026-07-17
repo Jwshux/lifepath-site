@@ -8,10 +8,12 @@ This website serves as the official landing page where users can learn about the
 
 ## Tech Stack
 
-- React.js
+- React.js (Create React App)
 - HTML
 - CSS
 - JavaScript
+
+No backend — this is a frontend-only site.
 
 ---
 
@@ -37,9 +39,9 @@ http://localhost:3000
 
 ---
 
-## Repository
+## Team
 
-This repository contains the source code for the official **LifePATH** website.
+Joshua R. Riana &middot; Miguel Dominic Santiago &middot; Sofia Parreño &middot; Nikol D. Lopez
 
 ---
 
