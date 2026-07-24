@@ -4,7 +4,7 @@ import { useAuthModal } from '../../context/AuthModalContext';
 import { signIn, signUp, checkUsername } from '../../services/api';
 import './AuthModal.css';
 
-const INITIAL_SIGNIN = { email: '', password: '' };
+const INITIAL_SIGNIN = { username: '', password: '' };
 const INITIAL_SIGNUP = { username: '', email: '', password: '', confirmPassword: '' };
 
 const getPasswordStrength = (password) => {
@@ -294,15 +294,16 @@ const handleSignUpSubmit = async (event) => {
         {mode === 'signin' ? (
           <form className="auth-modal__form" onSubmit={handleSignInSubmit}>
             <label className="auth-modal__field">
-              <span className="auth-modal__label">Email</span>
+              <span className="auth-modal__label">Username</span>
               <input
-                type="email"
-                name="email"
-                value={signInForm.email}
+                type="text"
+                name="username"
+                value={signInForm.username}
                 onChange={handleSignInChange}
                 required
-                autoComplete="email"
-                placeholder="you@example.com"
+                minLength={3}
+                autoComplete="username"
+                placeholder="yourname"
               />
             </label>
             <label className="auth-modal__field">

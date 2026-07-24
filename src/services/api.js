@@ -32,11 +32,11 @@ export function signUp({ email, password, username }) {
   });
 }
 
-export function signIn({ email, password }) {
+export function signIn({ username, password }) {
   return request('/api/auth/signin', {
     method: 'POST',
     body: JSON.stringify({
-      email,
+      username,
       password,
     }),
   });
