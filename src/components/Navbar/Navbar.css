@@ -228,3 +228,58 @@
 .navbar__mobile-links li:last-child .navbar__link {
   border-bottom: none;
 }
+
+.navbar__auth {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.navbar__account {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.navbar__username {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-paper);
+}
+
+.navbar__cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1.1rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-dusk-soft);
+  background-color: var(--color-ember);
+  border-radius: 999px;
+  transition: transform 0.25s var(--ease-standard), background-color 0.25s var(--ease-standard);
+}
+
+.navbar__cta:hover,
+.navbar__cta:focus-visible {
+  transform: translateY(-2px);
+  background-color: #7a8e6e;
+}
+
+.navbar__cta--ghost {
+  color: var(--color-paper);
+  background-color: transparent;
+  border: 1px solid rgba(56, 36, 23, 0.2);
+}
+
+.navbar__cta--ghost:hover,
+.navbar__cta--ghost:focus-visible {
+  background-color: rgba(56, 36, 23, 0.05);
+}
+
+.navbar__link--button {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+}

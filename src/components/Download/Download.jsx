@@ -1,4 +1,8 @@
+import { useAuth } from '../../context/AuthContext';
+import { useAuthModal } from '../../context/AuthModalContext';
 import './Download.css';
+
+const APK_URL = '/downloads/lifepath-latest.apk';
 
 const APK_META = [
   { label: 'Latest Version', value: 'v1.2.0' },
@@ -10,7 +14,27 @@ const APK_META = [
 const SHA256_PLACEHOLDER =
   '0000000000000000000000000000000000000000000000000000000000000000';
 
+function triggerFileDownload() {
+  const link = document.createElement('a');
+  link.href = APK_URL;
+  link.setAttribute('download', '');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
 function Download() {
+  const { isAuthenticated } = useAuth();
+  const { openModal } = useAuthModal();
+
+  const handleDownloadClick = () => {
+    if (isAuthenticated) {
+      triggerFileDownload();
+    } else {
+      openModal('signin', triggerFileDownload);
+    }
+  };
+
   return (
     <section id="download" className="download">
       <div className="download__inner">
@@ -18,8 +42,8 @@ function Download() {
           <span className="download__eyebrow">Get the Game</span>
           <h2 className="download__heading">Download LifePATH</h2>
           <p className="download__description">
-            Install the latest build and start your first playthrough. No
-            account, no connection required — just choices to make.
+            Install the latest build and start your first playthrough. Sign in to
+            download — it helps us understand who's playing and keep the project secure.
           </p>
         </div>
 
@@ -27,14 +51,16 @@ function Download() {
           <div className="download__card-glow" aria-hidden="true" />
 
           <div className="download__cta">
-            <a href="/downloads/lifepath-latest.apk" className="download__btn" download>
+            <button type="button" className="download__btn" onClick={handleDownloadClick}>
               <span className="download__btn-icon" aria-hidden="true">
                 &#8595;
               </span>
               Download APK
-            </a>
+            </button>
             <p className="download__cta-note">
-              Direct download &middot; no third-party store required
+              {isAuthenticated
+                ? 'Direct download — no third-party store required'
+                : 'Sign in required · takes a few seconds'}
             </p>
           </div>
 

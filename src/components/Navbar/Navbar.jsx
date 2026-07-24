@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { useAuthModal } from '../../context/AuthModalContext';
 import './Navbar.css';
 
 const NAV_LINKS = [
@@ -8,48 +10,38 @@ const NAV_LINKS = [
   { label: 'Gallery', href: '#gallery' },
   { label: 'Download', href: '#download' },
   { label: 'Developers', href: '#developers' },
+  { label: 'Feedback', href: '#feedback' },
 ];
 
 const SCROLL_THRESHOLD = 24;
 const DESKTOP_BREAKPOINT = 768;
 
 function Navbar() {
+  const { isAuthenticated, user, logout } = useAuth();
+  const { openModal } = useAuthModal();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Toggle a solid, blurred background once the page has scrolled past the top.
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > SCROLL_THRESHOLD);
-    };
-
+    const handleScroll = () => setIsScrolled(window.scrollY > SCROLL_THRESHOLD);
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close the mobile menu automatically if the viewport grows past mobile size.
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth > DESKTOP_BREAKPOINT) {
-        setIsMenuOpen(false);
-      }
+      if (window.innerWidth > DESKTOP_BREAKPOINT) setIsMenuOpen(false);
     };
-
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Lock body scroll while the mobile menu is open, and allow Escape to close it.
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? 'hidden' : '';
-
     const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        setIsMenuOpen(false);
-      }
+      if (event.key === 'Escape') setIsMenuOpen(false);
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       document.body.style.overflow = '';
@@ -59,6 +51,21 @@ function Navbar() {
 
   const closeMenu = () => setIsMenuOpen(false);
   const toggleMenu = () => setIsMenuOpen((open) => !open);
+
+  const handleSignIn = () => {
+    openModal('signin');
+    closeMenu();
+  };
+
+  const handleSignUp = () => {
+    openModal('signup');
+    closeMenu();
+  };
+
+  const handleLogout = () => {
+    logout();
+    closeMenu();
+  };
 
   return (
     <nav className={`navbar ${isScrolled ? 'navbar--scrolled' : ''}`}>
@@ -76,6 +83,25 @@ function Navbar() {
               </a>
             </li>
           ))}
+          <li className="navbar__auth">
+            {isAuthenticated ? (
+              <div className="navbar__account">
+                <span className="navbar__username">{user?.username}</span>
+                <button type="button" className="navbar__cta navbar__cta--ghost" onClick={handleLogout}>
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <>
+                <button type="button" className="navbar__cta navbar__cta--ghost" onClick={handleSignIn}>
+                  Sign In
+                </button>
+                <button type="button" className="navbar__cta" onClick={handleSignUp}>
+                  Sign Up
+                </button>
+              </>
+            )}
+          </li>
         </ul>
 
         <button
@@ -92,21 +118,35 @@ function Navbar() {
         </button>
       </div>
 
-      <div
-        id="mobile-menu"
-        className={`navbar__mobile-menu ${isMenuOpen ? 'navbar__mobile-menu--open' : ''}`}
-      >
+      <div id="mobile-menu" className={`navbar__mobile-menu ${isMenuOpen ? 'navbar__mobile-menu--open' : ''}`}>
         <ul className="navbar__mobile-links">
           {NAV_LINKS.map((link, index) => (
-            <li
-              key={link.href}
-              style={{ transitionDelay: isMenuOpen ? `${index * 0.05}s` : '0s' }}
-            >
+            <li key={link.href} style={{ transitionDelay: isMenuOpen ? `${index * 0.05}s` : '0s' }}>
               <a href={link.href} className="navbar__link" onClick={closeMenu}>
                 {link.label}
               </a>
             </li>
           ))}
+          {isAuthenticated ? (
+            <li style={{ transitionDelay: isMenuOpen ? `${NAV_LINKS.length * 0.05}s` : '0s' }}>
+              <button type="button" className="navbar__link navbar__link--button" onClick={handleLogout}>
+                Sign Out ({user?.username})
+              </button>
+            </li>
+          ) : (
+            <>
+              <li style={{ transitionDelay: isMenuOpen ? `${NAV_LINKS.length * 0.05}s` : '0s' }}>
+                <button type="button" className="navbar__link navbar__link--button" onClick={handleSignIn}>
+                  Sign In
+                </button>
+              </li>
+              <li style={{ transitionDelay: isMenuOpen ? `${(NAV_LINKS.length + 1) * 0.05}s` : '0s' }}>
+                <button type="button" className="navbar__link navbar__link--button" onClick={handleSignUp}>
+                  Sign Up
+                </button>
+              </li>
+            </>
+          )}
         </ul>
       </div>
     </nav>
