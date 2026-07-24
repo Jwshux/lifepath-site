@@ -5,7 +5,6 @@ import Features from '../../components/Features/Features';
 import Gallery from '../../components/Gallery/Gallery';
 import Download from '../../components/Download/Download';
 import Developers from '../../components/Developers/Developers';
-import Footer from '../../components/Footer/Footer';
 import Feedback from '../../components/Feedback/Feedback';
 import './Home.css';
 
