@@ -84,3 +84,13 @@ export function verifyResetCode(email, code) {
     }),
   });
 }
+
+export function resetPassword(resetToken, newPassword) {
+  return request('/api/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({
+      reset_token: resetToken,
+      new_password: newPassword,
+    }),
+  });
+}

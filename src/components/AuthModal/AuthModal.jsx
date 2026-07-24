@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useAuthModal } from '../../context/AuthModalContext';
-import { signIn, signUp, checkUsername, forgotPassword, verifyResetCode, } from '../../services/api';
+import { signIn, signUp, checkUsername, forgotPassword, verifyResetCode, resetPassword, } from '../../services/api';
 import './AuthModal.css';
 
 const INITIAL_SIGNIN = { username: '', password: '' };
@@ -76,10 +76,19 @@ function AuthModal() {
   const [resetCode, setResetCode] = useState('');
   const [resetToken, setResetToken] = useState('');
 
+  const [newPasswordForm, setNewPasswordForm] = useState({
+  password: '',
+  confirmPassword: '',
+});
+  const resetPasswordStrength = getPasswordStrength(newPasswordForm.password);
+
+  const [resetSuccessMessage, setResetSuccessMessage] = useState('');
+
   const [usernameStatus, setUsernameStatus] = useState('idle');
   const [usernameMessage, setUsernameMessage] = useState('');
 
   const passwordStrength = getPasswordStrength(signUpForm.password);
+
 
   useEffect(() => {
     if (isOpen) {
@@ -89,7 +98,26 @@ function AuthModal() {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
+
+      setSignInForm(INITIAL_SIGNIN);
+      setSignUpForm(INITIAL_SIGNUP);
+
+      setForgotPasswordEmail('');
+      setForgotPasswordMessage('');
+      setResetCode('');
+      setResetToken('');
+
+      setNewPasswordForm({
+        password: '',
+        confirmPassword: '',
+      });
+
+      setResetSuccessMessage('');
+
+      setUsernameStatus('idle');
+      setUsernameMessage('');
     }
+
     return () => {
       document.body.style.overflow = '';
     };
@@ -219,6 +247,58 @@ function AuthModal() {
 
       setResetToken(data.reset_token);
       switchMode('reset-password');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleResetPasswordSubmit = async (event) => {
+    event.preventDefault();
+
+    setError('');
+    setResetSuccessMessage('');
+
+    const { password, confirmPassword } = newPasswordForm;
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    if (
+      !resetPasswordStrength.requirements.length ||
+      !resetPasswordStrength.requirements.letter ||
+      !resetPasswordStrength.requirements.number
+    ) {
+      setError(
+        'Password must be at least 8 characters and include a letter and a number.'
+      );
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const data = await resetPassword(
+        resetToken,
+        password
+      );
+
+      setResetSuccessMessage(data.message);
+      setNewPasswordForm({
+        password: '',
+        confirmPassword: '',
+      });
+
+      setResetCode('');
+      setResetToken('');
+
+      window.setTimeout(() => {
+        setResetSuccessMessage('');
+        switchMode('signin');
+      }, 1500);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -411,7 +491,14 @@ const handleSignUpSubmit = async (event) => {
             className="auth-modal__forgot-password"
             onClick={() => {
               setError('');
+              setForgotPasswordEmail('');
               setForgotPasswordMessage('');
+              setResetCode('');
+              setResetToken('');
+              setNewPasswordForm({
+                password: '',
+                confirmPassword: '',
+              });
               switchMode('forgot-password');
             }}
           >
@@ -721,6 +808,155 @@ const handleSignUpSubmit = async (event) => {
         </button>
       </form>
     )}
+      {mode === 'reset-password' && (
+        <form
+          className="auth-modal__form"
+          onSubmit={handleResetPasswordSubmit}
+        >
+        <label className="auth-modal__field">
+          <span className="auth-modal__label">
+            New Password
+          </span>
+
+          <input
+            type="password"
+            value={newPasswordForm.password}
+            onChange={(event) =>
+              setNewPasswordForm((prev) => ({
+                ...prev,
+                password: event.target.value,
+              }))
+            }
+            required
+            minLength={8}
+            maxLength={64}
+            autoComplete="new-password"
+            placeholder="••••••••"
+            aria-describedby={
+              'reset-password-strength reset-password-requirements'
+            }
+          />
+
+          {newPasswordForm.password && (
+            <div
+              id="reset-password-strength"
+              className="auth-modal__strength"
+              aria-live="polite"
+            >
+              <div className="auth-modal__strength-header">
+                <span>Password strength</span>
+
+                <span
+                  className={
+                    `auth-modal__strength-label ` +
+                    `auth-modal__strength-label--${resetPasswordStrength.className}`
+                  }
+                >
+                  {resetPasswordStrength.label}
+                </span>
+              </div>
+
+              <div
+                className="auth-modal__strength-bars"
+                aria-hidden="true"
+              >
+                {[1, 2, 3].map((level) => (
+                  <span
+                    key={level}
+                    className={
+                      `auth-modal__strength-bar ${
+                        resetPasswordStrength.score >= level
+                          ? `auth-modal__strength-bar--${resetPasswordStrength.className}`
+                          : ''
+                      }`
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          <ul
+            id="reset-password-requirements"
+            className="auth-modal__requirements"
+          >
+            <li
+              className={
+                resetPasswordStrength.requirements.length
+                  ? 'auth-modal__requirement--met'
+                  : ''
+              }
+            >
+              At least 8 characters
+            </li>
+
+            <li
+              className={
+                resetPasswordStrength.requirements.letter
+                  ? 'auth-modal__requirement--met'
+                  : ''
+              }
+            >
+              At least one letter
+            </li>
+
+            <li
+              className={
+                resetPasswordStrength.requirements.number
+                  ? 'auth-modal__requirement--met'
+                  : ''
+              }
+            >
+              At least one number
+            </li>
+          </ul>
+        </label>
+
+          <label className="auth-modal__field">
+            <span className="auth-modal__label">
+              Confirm New Password
+            </span>
+
+            <input
+              type="password"
+              value={newPasswordForm.confirmPassword}
+              onChange={(event) =>
+                setNewPasswordForm((prev) => ({
+                  ...prev,
+                  confirmPassword: event.target.value,
+                }))
+              }
+              required
+              minLength={8}
+              maxLength={64}
+              autoComplete="new-password"
+              placeholder="••••••••"
+            />
+          </label>
+
+          {resetSuccessMessage && (
+            <p className="auth-modal__success" role="status">
+              {resetSuccessMessage}
+            </p>
+          )}
+
+          {error && (
+            <p className="auth-modal__error" role="alert">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            className="auth-modal__submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting
+              ? 'Resetting Password…'
+              : 'Reset Password'}
+          </button>
+        </form>
+      )}
       </div>
     </div>
   );
