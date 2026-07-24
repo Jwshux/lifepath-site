@@ -6,6 +6,58 @@ import './AuthModal.css';
 
 const INITIAL_SIGNIN = { email: '', password: '' };
 const INITIAL_SIGNUP = { username: '', email: '', password: '', confirmPassword: '' };
+const getPasswordStrength = (password) => {
+  if (!password) {
+    return {
+      score: 0,
+      label: '',
+      className: '',
+      requirements: {
+        length: false,
+        letter: false,
+        number: false,
+      },
+    };
+  }
+
+  const requirements = {
+    length: password.length >= 8,
+    letter: /[A-Za-z]/.test(password),
+    number: /\d/.test(password),
+  };
+
+  let score = 0;
+
+  if (password.length >= 8) score += 1;
+  if (password.length >= 12) score += 1;
+  if (requirements.letter && requirements.number) score += 1;
+  if (/[^A-Za-z0-9]/.test(password)) score += 1;
+
+  if (score <= 1) {
+    return {
+      score: 1,
+      label: 'Weak',
+      className: 'weak',
+      requirements,
+    };
+  }
+
+  if (score <= 3) {
+    return {
+      score: 2,
+      label: 'Medium',
+      className: 'medium',
+      requirements,
+    };
+  }
+
+  return {
+    score: 3,
+    label: 'Strong',
+    className: 'strong',
+    requirements,
+  };
+};
 
 function AuthModal() {
   const { isOpen, mode, closeModal, switchMode, runSuccessCallback } = useAuthModal();
@@ -16,6 +68,8 @@ function AuthModal() {
   const [signUpForm, setSignUpForm] = useState(INITIAL_SIGNUP);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const passwordStrength = getPasswordStrength(signUpForm.password);
 
   useEffect(() => {
     if (isOpen) {
@@ -77,6 +131,17 @@ function AuthModal() {
   const handleSignUpSubmit = async (event) => {
     event.preventDefault();
     setError('');
+
+    if (
+      !passwordStrength.requirements.length ||
+      !passwordStrength.requirements.letter ||
+      !passwordStrength.requirements.number
+    ) {
+      setError(
+        'Password must be at least 8 characters and include a letter and a number.'
+      );
+      return;
+    }
 
     if (signUpForm.password !== signUpForm.confirmPassword) {
       setError('Passwords do not match.');
@@ -212,6 +277,7 @@ function AuthModal() {
             </label>
             <label className="auth-modal__field">
               <span className="auth-modal__label">Password</span>
+
               <input
                 type="password"
                 name="password"
@@ -219,13 +285,81 @@ function AuthModal() {
                 onChange={handleSignUpChange}
                 required
                 minLength={8}
+                maxLength={64}
                 autoComplete="new-password"
                 placeholder="••••••••"
+                aria-describedby="password-strength password-requirements"
               />
-            </label>
 
+              {signUpForm.password && (
+                <div
+                  id="password-strength"
+                  className="auth-modal__strength"
+                  aria-live="polite"
+                >
+                  <div className="auth-modal__strength-header">
+                    <span>Password strength</span>
+
+                    <span
+                      className={`auth-modal__strength-label auth-modal__strength-label--${passwordStrength.className}`}
+                    >
+                      {passwordStrength.label}
+                    </span>
+                  </div>
+
+                  <div className="auth-modal__strength-bars" aria-hidden="true">
+                    {[1, 2, 3].map((level) => (
+                      <span
+                        key={level}
+                        className={`auth-modal__strength-bar ${
+                          passwordStrength.score >= level
+                            ? `auth-modal__strength-bar--${passwordStrength.className}`
+                            : ''
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <ul
+                id="password-requirements"
+                className="auth-modal__requirements"
+              >
+                <li
+                  className={
+                    passwordStrength.requirements.length
+                      ? 'auth-modal__requirement--met'
+                      : ''
+                  }
+                >
+                  At least 8 characters
+                </li>
+
+                <li
+                  className={
+                    passwordStrength.requirements.letter
+                      ? 'auth-modal__requirement--met'
+                      : ''
+                  }
+                >
+                  At least one letter
+                </li>
+
+                <li
+                  className={
+                    passwordStrength.requirements.number
+                      ? 'auth-modal__requirement--met'
+                      : ''
+                  }
+                >
+                  At least one number
+                </li>
+              </ul>
+            </label>
             <label className="auth-modal__field">
               <span className="auth-modal__label">Confirm Password</span>
+
               <input
                 type="password"
                 name="confirmPassword"
@@ -233,6 +367,7 @@ function AuthModal() {
                 onChange={handleSignUpChange}
                 required
                 minLength={8}
+                maxLength={64}
                 autoComplete="new-password"
                 placeholder="••••••••"
               />
