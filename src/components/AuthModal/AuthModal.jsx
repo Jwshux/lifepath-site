@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { signIn, signUp } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useAuthModal } from '../../context/AuthModalContext';
+import { signIn, signUp, checkUsername } from '../../services/api';
 import './AuthModal.css';
 
 const INITIAL_SIGNIN = { email: '', password: '' };
 const INITIAL_SIGNUP = { username: '', email: '', password: '', confirmPassword: '' };
+
 const getPasswordStrength = (password) => {
   if (!password) {
     return {
@@ -69,6 +70,9 @@ function AuthModal() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [usernameStatus, setUsernameStatus] = useState('idle');
+  const [usernameMessage, setUsernameMessage] = useState('');
+
   const passwordStrength = getPasswordStrength(signUpForm.password);
 
   useEffect(() => {
@@ -93,6 +97,52 @@ function AuthModal() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, closeModal]);
+
+  useEffect(() => {
+  if (!isOpen || mode !== 'signup') {
+    setUsernameStatus('idle');
+    setUsernameMessage('');
+    return undefined;
+  }
+
+  const username = signUpForm.username.trim();
+
+  if (username.length < 3) {
+    setUsernameStatus('idle');
+    setUsernameMessage('');
+    return undefined;
+  }
+
+  setUsernameStatus('checking');
+  setUsernameMessage('Checking username...');
+
+  const timeoutId = window.setTimeout(async () => {
+    try {
+      const result = await checkUsername(username);
+
+      if (result.available) {
+        setUsernameStatus('available');
+        setUsernameMessage('Username available');
+      } else {
+        setUsernameStatus('taken');
+        setUsernameMessage('Username already taken');
+      }
+    } catch (err) {
+      console.error('Username check failed:', err);
+
+      setUsernameStatus('error');
+      setUsernameMessage('Unable to check username');
+    }
+  }, 500);
+
+  return () => {
+    window.clearTimeout(timeoutId);
+  };
+}, [
+  signUpForm.username,
+  mode,
+  isOpen,
+]);
 
   if (!isOpen) return null;
 
@@ -128,43 +178,72 @@ function AuthModal() {
     }
   };
 
-  const handleSignUpSubmit = async (event) => {
-    event.preventDefault();
-    setError('');
+const handleSignUpSubmit = async (event) => {
+  event.preventDefault();
+  setError('');
 
-    if (
-      !passwordStrength.requirements.length ||
-      !passwordStrength.requirements.letter ||
-      !passwordStrength.requirements.number
-    ) {
-      setError(
-        'Password must be at least 8 characters and include a letter and a number.'
-      );
-      return;
-    }
+  const username = signUpForm.username.trim();
 
-    if (signUpForm.password !== signUpForm.confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
+  if (username.length < 3) {
+    setError('Username must be at least 3 characters long.');
+    return;
+  }
 
-    setIsSubmitting(true);
-    try {
-      const data = await signUp({
-        username: signUpForm.username,
-        email: signUpForm.email,
-        password: signUpForm.password,
-      });
-      login(data.token, data.user);
-      setSignUpForm(INITIAL_SIGNUP);
-      runSuccessCallback();
-      closeModal();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  if (usernameStatus === 'checking') {
+    setError('Please wait while the username is being checked.');
+    return;
+  }
+
+  if (usernameStatus === 'taken') {
+    setError('Please choose another username.');
+    return;
+  }
+
+  if (usernameStatus === 'error') {
+    setError('Unable to verify the username. Please try again.');
+    return;
+  }
+
+  if (
+    !passwordStrength.requirements.length ||
+    !passwordStrength.requirements.letter ||
+    !passwordStrength.requirements.number
+  ) {
+    setError(
+      'Password must be at least 8 characters and include a letter and a number.'
+    );
+    return;
+  }
+
+  if (
+    signUpForm.password !==
+    signUpForm.confirmPassword
+  ) {
+    setError('Passwords do not match.');
+    return;
+  }
+
+  setIsSubmitting(true);
+
+  try {
+    const data = await signUp({
+      username,
+      email: signUpForm.email,
+      password: signUpForm.password,
+    });
+
+    login(data.token, data.user);
+    setSignUpForm(INITIAL_SIGNUP);
+    setUsernameStatus('idle');
+    setUsernameMessage('');
+    runSuccessCallback();
+    closeModal();
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="auth-modal__overlay" onClick={closeModal}>
@@ -245,23 +324,58 @@ function AuthModal() {
               </p>
             )}
 
-            <button type="submit" className="auth-modal__submit" disabled={isSubmitting}>
+            <button
+              type="submit"
+              className="auth-modal__submit"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? 'Signing In…' : 'Sign In'}
             </button>
           </form>
         ) : (
           <form className="auth-modal__form" onSubmit={handleSignUpSubmit}>
             <label className="auth-modal__field">
-              <span className="auth-modal__label">Username</span>
+              <span className="auth-modal__label">
+                Username
+              </span>
+
               <input
                 type="text"
                 name="username"
                 value={signUpForm.username}
                 onChange={handleSignUpChange}
                 required
+                minLength={3}
+                maxLength={30}
                 autoComplete="username"
                 placeholder="yourname"
+                aria-describedby={
+                  usernameStatus !== 'idle'
+                    ? 'username-status'
+                    : undefined
+                }
               />
+
+              {usernameStatus !== 'idle' && (
+                <span
+                  id="username-status"
+                  className={
+                    `auth-modal__username-status ` +
+                    `auth-modal__username-status--${usernameStatus}`
+                  }
+                  role={
+                    usernameStatus === 'taken' ||
+                    usernameStatus === 'error'
+                      ? 'alert'
+                      : 'status'
+                  }
+                  aria-live="polite"
+                >
+                  {usernameStatus === 'available' && '✓ '}
+                  {usernameStatus === 'taken' && '✕ '}
+                  {usernameMessage}
+                </span>
+              )}
             </label>
             <label className="auth-modal__field">
               <span className="auth-modal__label">Email</span>
@@ -378,10 +492,22 @@ function AuthModal() {
                 {error}
               </p>
             )}
-
-            <button type="submit" className="auth-modal__submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating Account…' : 'Create Account'}
-            </button>
+          <button
+            type="submit"
+            className="auth-modal__submit"
+            disabled={
+              isSubmitting ||
+              usernameStatus === 'checking' ||
+              usernameStatus === 'taken' ||
+              usernameStatus === 'error'
+            }
+          >
+            {isSubmitting
+              ? 'Creating Account…'
+              : usernameStatus === 'checking'
+                ? 'Checking Username…'
+                : 'Create Account'}
+          </button>
           </form>
         )}
       </div>

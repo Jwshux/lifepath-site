@@ -295,6 +295,28 @@
   content: '✓';
 }
 
+.auth-modal__username-status {
+  display: flex;
+  align-items: center;
+  min-height: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.auth-modal__username-status--checking {
+  color: var(--color-fog);
+}
+
+.auth-modal__username-status--available {
+  color: var(--color-ember);
+}
+
+.auth-modal__username-status--taken,
+.auth-modal__username-status--error {
+  color: #b3432f;
+}
+
 /* Motion */
 
 @keyframes auth-modal-fade-in {
