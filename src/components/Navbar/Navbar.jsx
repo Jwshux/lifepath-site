@@ -52,6 +52,8 @@ function Navbar() {
   const closeMenu = () => setIsMenuOpen(false);
   const toggleMenu = () => setIsMenuOpen((open) => !open);
 
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
+
   const handleSignIn = () => {
     openModal('signin');
     closeMenu();
@@ -63,6 +65,7 @@ function Navbar() {
   };
 
   const handleLogout = () => {
+    setIsAccountOpen(false);
     logout();
     closeMenu();
   };
@@ -84,23 +87,63 @@ function Navbar() {
             </li>
           ))}
           <li className="navbar__auth">
-            {isAuthenticated ? (
-              <div className="navbar__account">
-                <span className="navbar__username">{user?.username}</span>
-                <button type="button" className="navbar__cta navbar__cta--ghost" onClick={handleLogout}>
-                  Sign Out
-                </button>
-              </div>
-            ) : (
-              <>
-                <button type="button" className="navbar__cta navbar__cta--ghost" onClick={handleSignIn}>
-                  Sign In
-                </button>
-                <button type="button" className="navbar__cta" onClick={handleSignUp}>
-                  Sign Up
-                </button>
-              </>
-            )}
+          {isAuthenticated ? (
+            <div className="navbar__account">
+              <button
+                type="button"
+                className="navbar__account-trigger"
+                onClick={() => setIsAccountOpen((open) => !open)}
+                aria-expanded={isAccountOpen}
+                aria-haspopup="menu"
+              >
+                <span className="navbar__account-name">
+                  {user?.username}
+                </span>
+
+                <span
+                  className={`navbar__account-chevron ${
+                    isAccountOpen
+                      ? 'navbar__account-chevron--open'
+                      : ''
+                  }`}
+                  aria-hidden="true"
+                >
+                  ▾
+                </span>
+              </button>
+
+              {isAccountOpen && (
+                <div className="navbar__account-menu" role="menu">
+                  <button
+                    type="button"
+                    className="navbar__account-signout"
+                    onClick={handleLogout}
+                    role="menuitem"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="navbar__cta navbar__cta--ghost"
+                onClick={handleSignIn}
+              >
+                Sign In
+              </button>
+
+              <button
+                type="button"
+                className="navbar__cta"
+                onClick={handleSignUp}
+              >
+                Sign Up
+              </button>
+            </>
+          )}
           </li>
         </ul>
 

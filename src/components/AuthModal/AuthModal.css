@@ -83,6 +83,10 @@
   color: var(--color-fog);
 }
 
+.auth-modal__intro + .auth-modal__form {
+  margin-top: 1rem;
+}
+
 /* Pill-style sliding tabs */
 
 .auth-modal__tabs {
@@ -182,6 +186,16 @@
   color: #b3432f;
   background-color: rgba(179, 67, 47, 0.08);
   border: 1px solid rgba(179, 67, 47, 0.25);
+  border-radius: 10px;
+}
+
+.auth-modal__success {
+  margin-top: 0.25rem;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.82rem;
+  color: #58704f;
+  background-color: rgba(88, 112, 79, 0.08);
+  border: 1px solid rgba(88, 112, 79, 0.2);
   border-radius: 10px;
 }
 

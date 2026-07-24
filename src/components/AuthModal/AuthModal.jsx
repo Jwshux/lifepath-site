@@ -801,6 +801,7 @@ const handleSignUpSubmit = async (event) => {
           onClick={() => {
             setError('');
             setResetCode('');
+            setForgotPasswordMessage('');
             switchMode('forgot-password');
           }}
         >
