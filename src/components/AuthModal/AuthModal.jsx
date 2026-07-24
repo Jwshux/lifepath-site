@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useAuthModal } from '../../context/AuthModalContext';
-import { signIn, signUp, checkUsername, forgotPassword, } from '../../services/api';
+import { signIn, signUp, checkUsername, forgotPassword, verifyResetCode, } from '../../services/api';
 import './AuthModal.css';
 
 const INITIAL_SIGNIN = { username: '', password: '' };
@@ -72,6 +72,9 @@ function AuthModal() {
 
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
   const [forgotPasswordMessage, setForgotPasswordMessage] = useState('');
+
+  const [resetCode, setResetCode] = useState('');
+  const [resetToken, setResetToken] = useState('');
 
   const [usernameStatus, setUsernameStatus] = useState('idle');
   const [usernameMessage, setUsernameMessage] = useState('');
@@ -189,9 +192,33 @@ function AuthModal() {
     setIsSubmitting(true);
 
     try {
-      const data = await forgotPassword(forgotPasswordEmail);
+      const email = forgotPasswordEmail.trim();
+      const data = await forgotPassword(email);
 
+      setForgotPasswordEmail(email);
       setForgotPasswordMessage(data.message);
+      switchMode('verify-reset-code');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleVerifyResetCodeSubmit = async (event) => {
+    event.preventDefault();
+
+    setError('');
+    setIsSubmitting(true);
+
+    try {
+      const data = await verifyResetCode(
+        forgotPasswordEmail,
+        resetCode
+      );
+
+      setResetToken(data.reset_token);
+      switchMode('reset-password');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -272,7 +299,17 @@ const handleSignUpSubmit = async (event) => {
         className="auth-modal__dialog"
         role="dialog"
         aria-modal="true"
-        aria-label={mode === 'signin' ? 'Sign in' : mode === 'signup' ? 'Create account' : 'Reset password'}
+        aria-label={
+          mode === 'signin'
+            ? 'Sign in'
+            : mode === 'signup'
+              ? 'Create account'
+              : mode === 'forgot-password'
+                ? 'Forgot password'
+                : mode === 'verify-reset-code'
+                  ? 'Verify reset code'
+                  : 'Reset password'
+        }
         tabIndex={-1}
         ref={dialogRef}
         onClick={(event) => event.stopPropagation()}
@@ -291,10 +328,14 @@ const handleSignUpSubmit = async (event) => {
             ? 'Welcome back — sign in to continue.'
             : mode === 'signup'
               ? 'Create an account to get started.'
-              : 'Enter the email connected to your account.'}
+              : mode === 'forgot-password'
+                ? 'Enter the email connected to your account.'
+                : mode === 'verify-reset-code'
+                  ? 'Check your reset code.'
+                  : 'Choose a new password.'}
         </p>
 
-        {mode !== 'forgot-password' && (
+        {mode === 'signin' || mode === 'signup' ? (
           <div className="auth-modal__tabs" data-mode={mode}>
             <span className="auth-modal__tab-indicator" aria-hidden="true" />
 
@@ -322,7 +363,7 @@ const handleSignUpSubmit = async (event) => {
               Sign Up
             </button>
           </div>
-        )}
+          ) : null}
 
         {mode === 'signin' && (
           <form className="auth-modal__form" onSubmit={handleSignInSubmit}>
@@ -609,6 +650,77 @@ const handleSignUpSubmit = async (event) => {
           </button>
         </form>
       )}
+      {mode === 'verify-reset-code' && (
+      <form
+        className="auth-modal__form"
+        onSubmit={handleVerifyResetCodeSubmit}
+      >
+        <p className="auth-modal__intro">
+          Enter the six-digit code sent for:
+          <br />
+          <strong>{forgotPasswordEmail}</strong>
+        </p>
+
+        <label className="auth-modal__field">
+          <span className="auth-modal__label">
+            Reset Code
+          </span>
+
+          <input
+            type="text"
+            inputMode="numeric"
+            value={resetCode}
+            onChange={(event) => {
+              const value = event.target.value
+                .replace(/\D/g, '')
+                .slice(0, 6);
+
+              setResetCode(value);
+            }}
+            required
+            minLength={6}
+            maxLength={6}
+            autoComplete="one-time-code"
+            placeholder="000000"
+          />
+        </label>
+
+        {forgotPasswordMessage && (
+          <p className="auth-modal__success" role="status">
+            {forgotPasswordMessage}
+          </p>
+        )}
+
+        {error && (
+          <p className="auth-modal__error" role="alert">
+            {error}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          className="auth-modal__submit"
+          disabled={
+            isSubmitting ||
+            resetCode.length !== 6
+          }
+        >
+          {isSubmitting ? 'Verifying…' : 'Verify Code'}
+        </button>
+
+        <button
+          type="button"
+          className="auth-modal__forgot-password"
+          onClick={() => {
+            setError('');
+            setResetCode('');
+            switchMode('forgot-password');
+          }}
+        >
+          Back
+        </button>
+      </form>
+    )}
       </div>
     </div>
   );

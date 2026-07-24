@@ -14,7 +14,9 @@ async function request(path, options = {}) {
 
   if (!response.ok) {
     throw new Error(
-      data.error || 'Something went wrong. Please try again.'
+      data.error ||
+      data.message ||
+      'Something went wrong. Please try again.'
     );
   }
 
@@ -70,5 +72,15 @@ export function forgotPassword(email) {
   return request('/api/auth/forgot-password', {
     method: 'POST',
     body: JSON.stringify({ email }),
+  });
+}
+
+export function verifyResetCode(email, code) {
+  return request('/api/auth/verify-reset-code', {
+    method: 'POST',
+    body: JSON.stringify({
+      email,
+      code,
+    }),
   });
 }
