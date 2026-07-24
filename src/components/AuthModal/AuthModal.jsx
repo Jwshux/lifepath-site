@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useAuthModal } from '../../context/AuthModalContext';
-import { signIn, signUp, checkUsername } from '../../services/api';
+import { signIn, signUp, checkUsername, forgotPassword, } from '../../services/api';
 import './AuthModal.css';
 
 const INITIAL_SIGNIN = { username: '', password: '' };
@@ -69,6 +69,9 @@ function AuthModal() {
   const [signUpForm, setSignUpForm] = useState(INITIAL_SIGNUP);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+  const [forgotPasswordMessage, setForgotPasswordMessage] = useState('');
 
   const [usernameStatus, setUsernameStatus] = useState('idle');
   const [usernameMessage, setUsernameMessage] = useState('');
@@ -178,6 +181,24 @@ function AuthModal() {
     }
   };
 
+  const handleForgotPasswordSubmit = async (event) => {
+    event.preventDefault();
+
+    setError('');
+    setForgotPasswordMessage('');
+    setIsSubmitting(true);
+
+    try {
+      const data = await forgotPassword(forgotPasswordEmail);
+
+      setForgotPasswordMessage(data.message);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
 const handleSignUpSubmit = async (event) => {
   event.preventDefault();
   setError('');
@@ -251,7 +272,7 @@ const handleSignUpSubmit = async (event) => {
         className="auth-modal__dialog"
         role="dialog"
         aria-modal="true"
-        aria-label={mode === 'signin' ? 'Sign in' : 'Create account'}
+        aria-label={mode === 'signin' ? 'Sign in' : mode === 'signup' ? 'Create account' : 'Reset password'}
         tabIndex={-1}
         ref={dialogRef}
         onClick={(event) => event.stopPropagation()}
@@ -266,32 +287,44 @@ const handleSignUpSubmit = async (event) => {
         </div>
 
         <p className="auth-modal__intro">
-          {mode === 'signin' ? 'Welcome back — sign in to continue.' : 'Create an account to get started.'}
+          {mode === 'signin'
+            ? 'Welcome back — sign in to continue.'
+            : mode === 'signup'
+              ? 'Create an account to get started.'
+              : 'Enter the email connected to your account.'}
         </p>
 
-        <div className="auth-modal__tabs" data-mode={mode}>
-          <span className="auth-modal__tab-indicator" aria-hidden="true" />
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mode === 'signin'}
-            className={`auth-modal__tab ${mode === 'signin' ? 'auth-modal__tab--active' : ''}`}
-            onClick={() => handleModeSwitch('signin')}
-          >
-            Sign In
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mode === 'signup'}
-            className={`auth-modal__tab ${mode === 'signup' ? 'auth-modal__tab--active' : ''}`}
-            onClick={() => handleModeSwitch('signup')}
-          >
-            Sign Up
-          </button>
-        </div>
+        {mode !== 'forgot-password' && (
+          <div className="auth-modal__tabs" data-mode={mode}>
+            <span className="auth-modal__tab-indicator" aria-hidden="true" />
 
-        {mode === 'signin' ? (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'signin'}
+              className={`auth-modal__tab ${
+                mode === 'signin' ? 'auth-modal__tab--active' : ''
+              }`}
+              onClick={() => handleModeSwitch('signin')}
+            >
+              Sign In
+            </button>
+
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'signup'}
+              className={`auth-modal__tab ${
+                mode === 'signup' ? 'auth-modal__tab--active' : ''
+              }`}
+              onClick={() => handleModeSwitch('signup')}
+            >
+              Sign Up
+            </button>
+          </div>
+        )}
+
+        {mode === 'signin' && (
           <form className="auth-modal__form" onSubmit={handleSignInSubmit}>
             <label className="auth-modal__field">
               <span className="auth-modal__label">Username</span>
@@ -332,8 +365,20 @@ const handleSignUpSubmit = async (event) => {
             >
               {isSubmitting ? 'Signing In…' : 'Sign In'}
             </button>
+            <button
+            type="button"
+            className="auth-modal__forgot-password"
+            onClick={() => {
+              setError('');
+              setForgotPasswordMessage('');
+              switchMode('forgot-password');
+            }}
+          >
+            Forgot password?
+          </button>
           </form>
-        ) : (
+          )}
+          {mode === 'signup' && (
           <form className="auth-modal__form" onSubmit={handleSignUpSubmit}>
             <label className="auth-modal__field">
               <span className="auth-modal__label">
@@ -511,6 +556,59 @@ const handleSignUpSubmit = async (event) => {
           </button>
           </form>
         )}
+        {mode === 'forgot-password' && (
+        <form
+          className="auth-modal__form"
+          onSubmit={handleForgotPasswordSubmit}
+        >
+          <label className="auth-modal__field">
+            <span className="auth-modal__label">Email</span>
+
+            <input
+              type="email"
+              value={forgotPasswordEmail}
+              onChange={(event) =>
+                setForgotPasswordEmail(event.target.value)
+              }
+              required
+              autoComplete="email"
+              placeholder="you@example.com"
+            />
+          </label>
+
+          {forgotPasswordMessage && (
+            <p className="auth-modal__success" role="status">
+              {forgotPasswordMessage}
+            </p>
+          )}
+
+          {error && (
+            <p className="auth-modal__error" role="alert">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            className="auth-modal__submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Sending Code…' : 'Send Reset Code'}
+          </button>
+
+          <button
+            type="button"
+            className="auth-modal__forgot-password"
+            onClick={() => {
+              setError('');
+              setForgotPasswordMessage('');
+              switchMode('signin');
+            }}
+          >
+            Back to sign in
+          </button>
+        </form>
+      )}
       </div>
     </div>
   );

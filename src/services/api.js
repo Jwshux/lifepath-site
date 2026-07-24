@@ -65,3 +65,10 @@ export function checkUsername(username) {
     }
   );
 }
+
+export function forgotPassword(email) {
+  return request('/api/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+}
